@@ -20,7 +20,7 @@ namespace APILAHJA.Repositorys.Share
         where TShareRequestDto : class
         where TShareResponseDto : class
     {
-        protected readonly IMapper _mapper;
+        private readonly IMapper _mapper;
         protected readonly ILogger _logger;
         public BaseShareRepository(IMapper mapper, ILogger logger)
         {

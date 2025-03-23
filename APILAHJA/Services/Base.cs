@@ -1,4 +1,5 @@
 ﻿using APILAHJA.Dto;
+using APILAHJA.Models;
 using APILAHJA.Repositorys.Share;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace APILAHJA.Services
             _logger = logger;
         }
 
+       
         public IMapper GetMapper()
         {
             return _mapper;

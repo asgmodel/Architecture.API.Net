@@ -40,7 +40,7 @@ namespace APILAHJA.Repositorys.Builder
 
         protected readonly IBaseRepository<TModel> _repository;
         private readonly IMapper _mapper;
-        ILogger _logger;
+        protected readonly  ILogger _logger;
         public BaseBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger)
         {
 

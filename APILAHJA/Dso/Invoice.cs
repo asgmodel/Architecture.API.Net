@@ -5,15 +5,15 @@ using System.ComponentModel.DataAnnotations;
 namespace APILAHJA.Dso
 {
 
-  
+    public interface ITDso { }
 
-    public class InvoiceRequestDso : InvoiceShareRequestDto
+    public class InvoiceRequestDso : InvoiceShareRequestDto, ITDso
     {
 
      
     }
 
-    public class InvoiceResponseDso : InvoiceShareResponseDto
+    public class InvoiceResponseDso : InvoiceShareResponseDto, ITDso
     {
        public bool IsActive { get; set; }
     }

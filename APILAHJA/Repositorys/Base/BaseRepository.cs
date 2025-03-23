@@ -1,4 +1,6 @@
 using APILAHJA.Data;
+using APILAHJA.Dto;
+using APILAHJA.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -50,12 +52,21 @@ namespace APILAHJA.Repositorys.Base
 
         public BaseRepository(DataContext db, ILogger logger)
         {
+
+            if (!IsAllowCreate())
+            {
+                throw new InvalidOperationException("Creation of this repository is not allowed for the specified types.");
+            }
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _dbSet = _db.Set<T>();
             query = _dbSet.AsQueryable();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        private static bool IsAllowCreate()
+        {
+            return (typeof(T) is ITModel);
+        }
         public IQueryable<T> Get(Expression<Func<T, bool>>? expression = null)
         {
             if (expression != null) query = query.Where(expression);
