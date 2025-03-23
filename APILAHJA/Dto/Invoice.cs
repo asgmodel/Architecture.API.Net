@@ -11,6 +11,7 @@ namespace APILAHJA.Dto
         public required string CustomerId { get; set; }
         public required string Status { get; set; }
         public required string Url { get; set; }
+        public required string Url2 { get; set; }
         public DateTime? InvoiceDate { get; set; }
     }
 
@@ -24,22 +25,14 @@ namespace APILAHJA.Dto
     }
 
 
-    public class InvoiceShareRequestDto
+    public class InvoiceShareRequestDto: InvoiceBuildRequestDto
     {
 
-        public required string Id { get; set; }
-        public required string CustomerId { get; set; }
-        public required string Status { get; set; }
-        public required string Url { get; set; }
-        public DateTime? InvoiceDate { get; set; }
+    
     }
 
-    public class InvoiceShareResponseDto
+    public class InvoiceShareResponseDto: InvoiceBuildResponseDto
     {
-        public required string Id { get; set; }
-        public required string CustomerId { get; set; }
-        public required string Status { get; set; }
-        public required string Url { get; set; }
-        public DateTime? InvoiceDate { get; set; }
+       
     }
 }

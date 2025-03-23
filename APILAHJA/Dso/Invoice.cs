@@ -15,6 +15,6 @@ namespace APILAHJA.Dso
 
     public class InvoiceResponseDso : InvoiceShareResponseDto
     {
-       
+       public bool IsActive { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using APILAHJA.Dso;
 using APILAHJA.Dto;
+using APILAHJA.Repositorys.Builder;
 using APILAHJA.Repositorys.Share;
 using APILAHJA.VM;
 using AutoMapper;
@@ -11,21 +12,23 @@ namespace APILAHJA.Services
 {
 
 
-    public  interface IInvoiceService
+    public  interface IInvoiceService<TServiceRequestDso, TServiceResponseDso>
+
+       where TServiceRequestDso : class
+       where TServiceResponseDso : class
     {
-        Task<InvoiceShareResponseDto> CreateAsync(VMInvoiceCreate entity);
+        Task<TServiceResponseDso> CreateAsync(TServiceRequestDso entity);
        
     }
-    public class InvoiceService: BaseService
+    public class InvoiceService: BaseService, IInvoiceService<InvoiceRequestDso, InvoiceResponseDso>
     {
         private readonly IInvoiceShareRepository _invoiceShareRepository;
-        
 
-        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper): base(mapper)
+        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper) : base(mapper)
         {
             _invoiceShareRepository = invoiceShareRepository;
-        
 
+          
         }
 
 
@@ -37,7 +40,7 @@ namespace APILAHJA.Services
             var result = await _invoiceShareRepository.CreateAsync(entity);
 
             var output = (InvoiceResponseDso)result;
-
+   
 
             return output;
         }
