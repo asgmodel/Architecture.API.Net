@@ -99,7 +99,12 @@ namespace APILAHJA.Repositorys.Share
             {
                 throw new NotImplementedException();
             }
+
+        Task<InvoiceShareResponseDto> IInvoiceBuilderRepository<InvoiceShareRequestDto, InvoiceShareResponseDto>.getData(int id)
+        {
+            throw new NotImplementedException();
         }
+    }
 
     }
 

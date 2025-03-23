@@ -16,7 +16,7 @@ namespace APILAHJA.Repositorys.Builder
      where TBuildRequestDto : class
      where TBuildResponseDto : class
     {
-        TBuildResponseDto getData(int id);
+        Task<TBuildResponseDto>  getData(int id);
     }
     public  class InvoiceBuilderRepository : BaseBuilderRepository<Invoice, InvoiceBuildRequestDto, InvoiceBuildResponseDto>, IInvoiceBuilderRepository<InvoiceBuildRequestDto, InvoiceBuildResponseDto>
     {
@@ -32,10 +32,7 @@ namespace APILAHJA.Repositorys.Builder
             return MapToBuildResponseDto(entity);
         }
 
-        InvoiceBuildResponseDto IInvoiceBuilderRepository<InvoiceBuildRequestDto, InvoiceBuildResponseDto>.getData(int id)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
     
 
