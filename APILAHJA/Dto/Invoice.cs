@@ -4,7 +4,11 @@ using System.ComponentModel.DataAnnotations;
 namespace APILAHJA.Dto
 {
 
-    public class InvoiceBuildRequestDto
+    public interface ITBuildDto
+    {
+
+    }
+    public class InvoiceBuildRequestDto: ITBuildDto
     {
        
         public required string Id { get; set; }
@@ -15,7 +19,7 @@ namespace APILAHJA.Dto
         public DateTime? InvoiceDate { get; set; }
     }
 
-    public class InvoiceBuildResponseDto
+    public class InvoiceBuildResponseDto: ITBuildDto
     {
         public required string Id { get; set; }
         public required string CustomerId { get; set; }
@@ -24,14 +28,17 @@ namespace APILAHJA.Dto
         public DateTime? InvoiceDate { get; set; }
     }
 
+    public interface ITShareDto
+    {
 
-    public class InvoiceShareRequestDto: InvoiceBuildRequestDto
+    }
+    public class InvoiceShareRequestDto: InvoiceBuildRequestDto, ITShareDto
     {
 
     
     }
 
-    public class InvoiceShareResponseDto: InvoiceBuildResponseDto
+    public class InvoiceShareResponseDto: InvoiceBuildResponseDto, ITShareDto
     {
        
     }
