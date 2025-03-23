@@ -1,4 +1,6 @@
 ﻿using APILAHJA.Data;
+using APILAHJA.Dto;
+using APILAHJA.Models;
 using APILAHJA.Repositorys.Base;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +43,12 @@ namespace APILAHJA.Repositorys.Builder
         ILogger _logger;
         public BaseBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger)
         {
-      
+
+            if (!IsAllowCreate())
+            {
+                throw new InvalidOperationException("Creation of this repository is not allowed for the specified types.");
+            }
+
             _repository = new BaseRepository<TModel>(dbContext, logger);
             _mapper = mapper;
             _logger = logger;
@@ -158,6 +165,11 @@ namespace APILAHJA.Repositorys.Builder
 
         #endregion
 
+
+       private static bool IsAllowCreate()
+        {
+            return (typeof(TModel) is ITModel)&& (typeof(TBuildResponseDto) is ITBuildDto)&& (typeof(TBuildRequestDto) is ITBuildDto);
+        }
         protected TBuildResponseDto MapToBuildResponseDto( TModel model)
         {
             if (model == null)
@@ -166,6 +178,17 @@ namespace APILAHJA.Repositorys.Builder
             }
 
             return _mapper.Map<TBuildResponseDto>(model);
+        }
+
+
+        protected TModel MapToBuildRequestDto(TBuildRequestDto  requestDto)
+        {
+            if (requestDto == null )
+            {
+                throw new ArgumentNullException(nameof(requestDto), "The share request DTO cannot be null.");
+            }
+
+            return _mapper.Map<TModel>(requestDto);
         }
     }
 

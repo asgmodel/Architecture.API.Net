@@ -1,4 +1,6 @@
-﻿using APILAHJA.Repositorys.Base;
+﻿using APILAHJA.Dto;
+using APILAHJA.Models;
+using APILAHJA.Repositorys.Base;
 using APILAHJA.Repositorys.Builder;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +24,19 @@ namespace APILAHJA.Repositorys.Share
         protected readonly ILogger _logger;
         public BaseShareRepository(IMapper mapper, ILogger logger)
         {
+            if (!IsAllowCreate())
+            {
+                throw new InvalidOperationException("Creation of this repository is not allowed for the specified types.");
+            }
+
             _mapper = mapper;
             _logger = logger;
         }
 
-
+        private static bool IsAllowCreate()
+        {
+            return (typeof(TShareRequestDto) is ITShareDto) && (typeof(TShareResponseDto) is ITShareDto) && (typeof(TBuildResponseDto) is ITBuildDto) && (typeof(TBuildRequestDto) is ITBuildDto);
+        }
 
 
         // دالة لتحويل TShareRequestDto إلى TBuildRequestDto

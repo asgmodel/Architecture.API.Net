@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace APILAHJA.Models
 {
-
-    public class Invoice
+    public interface ITModel { }
+    public class Invoice : ITModel
     {
         [Key]
         public required string Id { get; set; }
