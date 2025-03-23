@@ -80,7 +80,12 @@ namespace APILAHJA.Repositorys.Share
                 throw new NotImplementedException();
             }
 
-            public IQueryable<InvoiceShareResponseDto> GetQueryable()
+        public InvoiceShareResponseDto getData(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<InvoiceShareResponseDto> GetQueryable()
             {
                 throw new NotImplementedException();
             }

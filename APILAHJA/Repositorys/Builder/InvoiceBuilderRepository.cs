@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace APILAHJA.Repositorys.Builder
 {
@@ -24,11 +25,16 @@ namespace APILAHJA.Repositorys.Builder
         {
         }
 
-        public InvoiceBuildResponseDto getData(int id)
+        public async Task<InvoiceBuildResponseDto> getData(int id)
         {
 
-            var entity = _repository.GetByAsync(e => EF.Property<int>(e, "Id") == id);
+            var entity = await _repository.GetByAsync(e => EF.Property<int>(e, "Id") == id);
             return MapToBuildResponseDto(entity);
+        }
+
+        InvoiceBuildResponseDto IInvoiceBuilderRepository<InvoiceBuildRequestDto, InvoiceBuildResponseDto>.getData(int id)
+        {
+            throw new NotImplementedException();
         }
     }
     
