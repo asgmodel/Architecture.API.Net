@@ -1,0 +1,6 @@
+@APILAHJA_HostAddress = http://localhost:5206
+
+GET {{APILAHJA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
