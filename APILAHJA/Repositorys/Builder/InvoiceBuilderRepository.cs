@@ -15,12 +15,20 @@ namespace APILAHJA.Repositorys.Builder
      where TBuildRequestDto : class
      where TBuildResponseDto : class
     {
-      
+        TBuildResponseDto getData(int id);
     }
     public  class InvoiceBuilderRepository : BaseBuilderRepository<Invoice, InvoiceBuildRequestDto, InvoiceBuildResponseDto>, IInvoiceBuilderRepository<InvoiceBuildRequestDto, InvoiceBuildResponseDto>
     {
+
         public InvoiceBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger) : base(dbContext, mapper, logger)
         {
+        }
+
+        public InvoiceBuildResponseDto getData(int id)
+        {
+
+            var entity = _repository.GetByAsync(e => EF.Property<int>(e, "Id") == id);
+            return MapToBuildResponseDto(entity);
         }
     }
     

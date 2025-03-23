@@ -37,7 +37,7 @@ namespace APILAHJA.Repositorys.Builder
     {
 
         protected readonly IBaseRepository<TModel> _repository;
-        protected readonly IMapper _mapper;
+        private readonly IMapper _mapper;
         ILogger _logger;
         public BaseBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger)
         {
@@ -157,6 +157,16 @@ namespace APILAHJA.Repositorys.Builder
         }
 
         #endregion
+
+        protected TBuildResponseDto MapToBuildResponseDto( TModel model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model), "The share response DTO cannot be null.");
+            }
+
+            return _mapper.Map<TBuildResponseDto>(model);
+        }
     }
 
 }
