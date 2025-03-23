@@ -23,7 +23,6 @@ namespace APILAHJA.Controllers
             _logger = logger;
         }
 
-        // إنشاء فاتورة جديدة
         [HttpPost("create")]
         public async Task<ActionResult<VMInvoiceOutput>> CreateInvoice([FromBody] VMInvoiceCreate invoiceRequest)
         {
