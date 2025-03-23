@@ -1,5 +1,7 @@
+using APILAHJA.Data;
 using APILAHJA.Dto;
 using APILAHJA.Models;
+using APILAHJA.Repositorys.Base;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,7 @@ namespace APILAHJA.Repositorys.Builder
     }
     public  class InvoiceBuilderRepository : BaseBuilderRepository<Invoice, InvoiceBuildRequestDto, InvoiceBuildResponseDto>, IInvoiceBuilderRepository<InvoiceBuildRequestDto, InvoiceBuildResponseDto>
     {
-        public InvoiceBuilderRepository(DbContext dbContext, IMapper mapper) : base(dbContext, mapper)
+        public InvoiceBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger) : base(dbContext, mapper, logger)
         {
         }
     }

@@ -1,3 +1,4 @@
+using APILAHJA.Data;
 using APILAHJA.Dto;
 using APILAHJA.Models;
 using APILAHJA.Repositorys.Builder;
@@ -24,10 +25,11 @@ namespace APILAHJA.Repositorys.Share
 
 
             private readonly InvoiceBuilderRepository _builder;
-            public InvoiceShareRepository(DbContext dbContext, IMapper mapper):base(mapper) {
             
-                _builder = new InvoiceBuilderRepository(dbContext, mapper);
-
+            public InvoiceShareRepository(DataContext dbContext, IMapper mapper, ILogger logger) :base(mapper,logger) {
+            
+                _builder = new InvoiceBuilderRepository(dbContext, mapper, logger);
+                 
             }
 
             public Task<int> CountAsync()

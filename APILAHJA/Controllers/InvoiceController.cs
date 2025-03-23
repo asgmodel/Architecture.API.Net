@@ -14,10 +14,13 @@ namespace APILAHJA.Controllers
         private readonly InvoiceService _invoiceService;
         private readonly IMapper _mapper;
 
-        public InvoiceController(InvoiceService invoiceService, IMapper mapper)
+        private readonly ILogger _logger;
+
+        public InvoiceController(InvoiceService invoiceService, IMapper mapper, ILogger logger)
         {
             _invoiceService = invoiceService;
             _mapper = mapper;
+            _logger = logger;
         }
 
         // إنشاء فاتورة جديدة

@@ -24,7 +24,7 @@ namespace APILAHJA.Services
     {
         private readonly IInvoiceShareRepository _invoiceShareRepository;
 
-        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper) : base(mapper)
+        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper, ILogger logge) : base(mapper, logge)
         {
             _invoiceShareRepository = invoiceShareRepository;
 

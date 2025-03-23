@@ -1,4 +1,5 @@
-﻿using APILAHJA.Repositorys.Base;
+﻿using APILAHJA.Data;
+using APILAHJA.Repositorys.Base;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -37,12 +38,13 @@ namespace APILAHJA.Repositorys.Builder
 
         protected readonly IBaseRepository<TModel> _repository;
         protected readonly IMapper _mapper;
-
-        public BaseBuilderRepository(DbContext dbContext, IMapper mapper)
+        ILogger _logger;
+        public BaseBuilderRepository(DataContext dbContext, IMapper mapper, ILogger logger)
         {
       
-            _repository = new BaseRepository<TModel>(dbContext);
+            _repository = new BaseRepository<TModel>(dbContext, logger);
             _mapper = mapper;
+            _logger = logger;
         }
 
         #region Get Methods

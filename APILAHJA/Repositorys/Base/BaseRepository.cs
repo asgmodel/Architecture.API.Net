@@ -1,16 +1,25 @@
+using APILAHJA.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace APILAHJA.Repositorys.Base
 {
+    public class RepositoryException : Exception
+    {
+        public RepositoryException(string message, Exception innerException)
+            : base(message, innerException) { }
+    }
+
+    class RepositoryLogger { }
     public interface IBaseRepository<T> where T : class
     {
         long CounItems { get; }
-
-        //IQueryable<T> SetSkipAndTake(IQueryable<T> entry, int skip, int take);
         Task<T> GetByAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IQueryable<T>>? setInclude = null, bool tracked = false);
         Task<T?> CreateAsync(T entity);
         Task<T> UpdateAsync(T entity);
@@ -25,24 +34,26 @@ namespace APILAHJA.Repositorys.Base
         IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, string[]? includes = null, int skip = 0, int take = 0, bool isOrdered = false, Expression<Func<T, long>>? order = null);
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IQueryable<T>>? include = null, int skip = 0, int take = 0, Expression<Func<T, object>>? order = null);
         Task RemoveAllAsync();
-        //IQueryable<T> FromSqlRaw(string query, params SqlParameter[] parameters);
         IQueryable<T> Get(Expression<Func<T, bool>>? expression = null);
     }
+
     public sealed class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly DbContext _db;
+        private readonly DataContext _db;
         private readonly DbSet<T> _dbSet;
-
+        private readonly ILogger _logger;
         public long CounItems { get => _count; }
         private long _count = 0;
-        IQueryable<T> query;
+        private IQueryable<T> query;
 
         public DbSet<T> DbSet => _dbSet;
-        public BaseRepository(DbContext db)
+
+        public BaseRepository(DataContext db, ILogger logger)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
             _dbSet = _db.Set<T>();
             query = _dbSet.AsQueryable();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public IQueryable<T> Get(Expression<Func<T, bool>>? expression = null)
@@ -50,8 +61,6 @@ namespace APILAHJA.Repositorys.Base
             if (expression != null) query = query.Where(expression);
             return query;
         }
-
-      
 
         public IBaseRepository<T> Include(Func<IQueryable<T>, IQueryable<T>> include)
         {
@@ -68,128 +77,185 @@ namespace APILAHJA.Repositorys.Base
             return this;
         }
 
-        public  async Task<T> GetByAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IQueryable<T>>? setInclude = null, bool tracked = false)
+        public async Task<T> GetByAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IQueryable<T>>? setInclude = null, bool tracked = false)
         {
-            if (!tracked) query = query.AsNoTracking();
-
-            if (filter != null) query = query.Where(filter);
-
-            if (setInclude != null)
+            try
             {
-                query = setInclude(query);
+                if (!tracked) query = query.AsNoTracking();
+                if (filter != null) query = query.Where(filter);
+                if (setInclude != null) query = setInclude(query);
+                return await query.FirstOrDefaultAsync();
             }
-            return await query.FirstOrDefaultAsync();
-        }
-
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IQueryable<T>>? include = null,
-            int skip = 0, int take = 0, Expression<Func<T, object>>? order = null)
-        {
-            query = query.AsNoTracking();
-            if (filter != null)
+            catch (Exception ex)
             {
-                query = query.Where(filter);
+                _logger.LogError(ex, "Error retrieving entity");
+                throw new RepositoryException("Error retrieving entity", ex);
             }
-            _count = await query.CountAsync();
+        }
 
-            query = SetSkipAndTake(query, skip, take);
-            if (order != null) query = query.OrderByDescending(order);
-
-            if (include != null)
+        public async Task<T?> CreateAsync(T entity)
+        {
+            try
             {
-                Include(include);
+              var  item=  (await _dbSet.AddAsync(entity)).Entity;
+                await SaveAsync();
+                return item;
             }
-            return await query.ToListAsync();
-        }
-
-        public IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, string[]? includes = null,
-        int skip = 0, int take = 0, bool isOrdered = false, Expression<Func<T, long>>? order = null)
-        {
-
-            if (filter != null)
+            catch (Exception ex)
             {
-                query = _dbSet.Where(filter);
+                _logger.LogError(ex, "Error creating entity");
+                return null;
             }
-            _count = query.Count();
+        }
 
-            query = SetSkipAndTake(query, skip, take);
-
-            if (isOrdered) { query.OrderByDescending(order); }
-
-            if (includes != null)
+        public async Task<T> UpdateAsync(T entity)
+        {
+            try
             {
-                Includes(includes);
+                _db.ChangeTracker.Clear();
+             var item=   _dbSet.Update(entity).Entity;
+                await SaveAsync();
+                return item;
             }
-            return query;
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError(ex, "Concurrency error during update");
+                throw new RepositoryException("Concurrency error during update", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating entity");
+                throw new RepositoryException("Error updating entity", ex);
+            }
         }
 
-        public  async Task<T?> CreateAsync(T entity)
+        public async Task<T> AttachAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            if (await SaveAsync() > 0)
-                return entity;
-            return null;
-        }
-
-        public  async Task<T> UpdateAsync(T entity)
-        {
-            _db.ChangeTracker.Clear();
-            _dbSet.Update(entity);
-            // «›’· «·ﬂ«∆‰ „‰ `DbContext` »⁄œ «· ÕœÌÀ
-            //_dbSet.Entry(entity).State = EntityState.Detached;
-            await SaveAsync();
-            return entity;
-        }
-
-
-        public  async Task<T> AttachAsync(T entity)
-        {
-            //_db.ChangeTracker.Clear();
-            _dbSet.Attach(entity);
-            await SaveAsync();
-            return entity;
-        }
-
-        public  async Task RemoveAsync(T entity)
-        {
-            if (_dbSet.Entry(entity).State == EntityState.Detached)
+            try
+            {
                 _dbSet.Attach(entity);
-            _dbSet.Remove(entity);
-            await SaveAsync();
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error attaching entity");
+                throw new RepositoryException("Error attaching entity", ex);
+            }
+        }
+
+        public async Task RemoveAsync(T entity)
+        {
+            try
+            {
+                if (_db.Entry(entity).State == EntityState.Detached)
+                    _dbSet.Attach(entity);
+                _dbSet.Remove(entity);
+                await SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing entity");
+                throw new RepositoryException("Error removing entity", ex);
+            }
         }
 
         public async Task RemoveAsync(Expression<Func<T, bool>> predicate)
         {
-            await _dbSet.Where(predicate).ExecuteDeleteAsync();
+            try
+            {
+                await _dbSet.Where(predicate).ExecuteDeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing entities");
+                throw new RepositoryException("Error removing entities", ex);
+            }
         }
 
         public async Task RemoveAllAsync()
         {
-            await _dbSet.ExecuteDeleteAsync();
+            try
+            {
+                await _dbSet.ExecuteDeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error removing all entities");
+                throw new RepositoryException("Error removing all entities", ex);
+            }
         }
 
         public async Task<int> SaveAsync()
         {
-            return await _db.SaveChangesAsync();
+            try
+            {
+                return await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving changes");
+                throw new RepositoryException("Error saving changes", ex);
+            }
         }
 
-        public async Task RemoveRange(List<T> entities)
+        public async Task<bool> Exists(Expression<Func<T, bool>> filter)
         {
-            _dbSet.RemoveRange(entities);
-            await SaveAsync();
+            try
+            {
+                return await _dbSet.AnyAsync(filter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking existence");
+                throw new RepositoryException("Error checking existence", ex);
+            }
         }
 
         public static IQueryable<T> SetSkipAndTake(IQueryable<T> query, int skip, int take)
         {
-            if (skip >= 0)
-                query = query.Skip(skip);
-            if (take > 0)
-                query = query.Take(take);
-
+            if (skip >= 0) query = query.Skip(skip);
+            if (take > 0) query = query.Take(take);
             return query;
         }
 
-        public async Task<bool> Exists(Expression<Func<T, bool>> filter) => await _dbSet.AnyAsync(filter);
+        // Handle transactions: to ensure multiple operations are executed as a single unit
+        public async Task<bool> ExecuteTransactionAsync(Func<Task<bool>> operation)
+        {
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                bool result = await operation();
+                if (result)
+                {
+                    await transaction.CommitAsync();
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error during transaction");
+                throw new RepositoryException("Error during transaction", ex);
+            }
+        }
+
+        public Task RemoveRange(List<T> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<T> GetAll(Expression<Func<T, bool>>? filter = null, string[]? includes = null, int skip = 0, int take = 0, bool isOrdered = false, Expression<Func<T, long>>? order = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IQueryable<T>>? include = null, int skip = 0, int take = 0, Expression<Func<T, object>>? order = null)
+        {
+            throw new NotImplementedException();
+        }
     }
-
-
 }

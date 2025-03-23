@@ -19,10 +19,11 @@ namespace APILAHJA.Repositorys.Share
         where TShareResponseDto : class
     {
         protected readonly IMapper _mapper;
-
-        public BaseShareRepository(IMapper mapper)
+        protected readonly ILogger _logger;
+        public BaseShareRepository(IMapper mapper, ILogger logger)
         {
             _mapper = mapper;
+            _logger = logger;
         }
 
 

@@ -12,9 +12,12 @@ namespace APILAHJA.Services
     {
         protected readonly   IMapper _mapper;
 
-        public BaseService(IMapper mapper)
+        protected readonly ILogger _logger;
+
+        public BaseService(IMapper mapper, ILogger logger)
         {
             _mapper = mapper;
+            _logger = logger;
         }
 
         public IMapper GetMapper()
