@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace APILAHJA.Dto
 {
 
+
+
+
     public interface ITBuildDto
     {
 

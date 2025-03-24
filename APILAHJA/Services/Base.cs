@@ -3,6 +3,7 @@ using APILAHJA.Models;
 using APILAHJA.Repositorys.Share;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
@@ -15,10 +16,10 @@ namespace APILAHJA.Services
 
         protected readonly ILogger _logger;
 
-        public BaseService(IMapper mapper, ILogger logger)
+        public BaseService(IMapper mapper, ILoggerFactory logger)
         {
             _mapper = mapper;
-            _logger = logger;
+            _logger = logger.CreateLogger(typeof(BaseService).FullName);
         }
 
        

@@ -23,10 +23,12 @@ namespace APILAHJA.Services
     public class InvoiceService: BaseService, IInvoiceService<InvoiceRequestDso, InvoiceResponseDso>
     {
         private readonly IInvoiceShareRepository _invoiceShareRepository;
+     
 
-        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper, ILogger logge) : base(mapper, logge)
+        public InvoiceService(IInvoiceShareRepository invoiceShareRepository,IMapper mapper, ILoggerFactory logge) : base(mapper, logge)
         {
             _invoiceShareRepository = invoiceShareRepository;
+          
 
           
         }
@@ -38,6 +40,7 @@ namespace APILAHJA.Services
 
             
             var result = await _invoiceShareRepository.CreateAsync(entity);
+        
 
             var output = (InvoiceResponseDso)result;
    

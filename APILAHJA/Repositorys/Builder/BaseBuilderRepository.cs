@@ -166,10 +166,14 @@ namespace APILAHJA.Repositorys.Builder
         #endregion
 
 
-       private static bool IsAllowCreate()
+        private static bool IsAllowCreate()
         {
-            return (typeof(TModel) is ITModel)&& (typeof(TBuildResponseDto) is ITBuildDto)&& (typeof(TBuildRequestDto) is ITBuildDto);
+            return typeof(ITModel).IsAssignableFrom(typeof(TModel)) &&
+                   typeof(ITBuildDto).IsAssignableFrom(typeof(TBuildResponseDto)) &&
+                   typeof(ITBuildDto).IsAssignableFrom(typeof(TBuildRequestDto));
         }
+
+
         protected TBuildResponseDto MapToBuildResponseDto( TModel model)
         {
             if (model == null)

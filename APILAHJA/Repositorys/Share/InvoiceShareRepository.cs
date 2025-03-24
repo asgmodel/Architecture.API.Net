@@ -5,6 +5,7 @@ using APILAHJA.Repositorys.Builder;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,9 +27,11 @@ namespace APILAHJA.Repositorys.Share
 
             private readonly InvoiceBuilderRepository _builder;
             
-            public InvoiceShareRepository(DataContext dbContext, IMapper mapper, ILogger logger) :base(mapper,logger) {
-            
-                _builder = new InvoiceBuilderRepository(dbContext, mapper, logger);
+            public InvoiceShareRepository(DataContext dbContext, IMapper mapper, ILoggerFactory logger) :base(mapper,logger) {
+
+          
+
+            _builder = new InvoiceBuilderRepository(dbContext, mapper, logger.CreateLogger(typeof(InvoiceShareRepository).FullName));
                  
             }
 
@@ -40,9 +43,11 @@ namespace APILAHJA.Repositorys.Share
             public async Task<InvoiceShareResponseDto> CreateAsync(InvoiceShareRequestDto entity)
             {
               
-             var item=  this.MapToBuildRequestDto(entity);
-             var result =await _builder.CreateAsync(item);
-             return this.MapToShareResponseDto(result);
+             
+            
+            var result =await _builder.CreateAsync(entity);
+            var output = (InvoiceShareResponseDto)result;
+            return output;
         }
 
             public Task<IEnumerable<InvoiceShareResponseDto>> CreateRangeAsync(IEnumerable<InvoiceShareRequestDto> entities)

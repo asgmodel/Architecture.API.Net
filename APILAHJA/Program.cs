@@ -1,8 +1,16 @@
+using APILAHJA.Config;
+using APILAHJA.Data;
 using APILAHJA.Dso;
 using APILAHJA.Models;
+using APILAHJA.Repositorys.Share;
 using APILAHJA.Services;
+using System;
+
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 
@@ -11,7 +19,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddScoped<IInvoiceService<InvoiceRequestDso,InvoiceResponseDso>>();
+builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddLogging(); // ≈÷«›… Œœ„«  «·‹ Logging
+
+builder.Services.AddScoped<IInvoiceShareRepository, InvoiceShareRepository>();
+builder.Services.AddScoped<InvoiceService>();
 
 var app = builder.Build();
 

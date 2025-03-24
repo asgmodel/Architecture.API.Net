@@ -13,7 +13,7 @@ namespace APILAHJA.Dso
      
     }
 
-    public class InvoiceResponseDso : InvoiceShareResponseDto, ITDso
+    public class InvoiceResponseDso : InvoiceShareResponseDto,ITDso
     {
        public bool IsActive { get; set; }
     }

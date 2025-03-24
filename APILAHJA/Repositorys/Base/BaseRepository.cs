@@ -65,8 +65,9 @@ namespace APILAHJA.Repositorys.Base
 
         private static bool IsAllowCreate()
         {
-            return (typeof(T) is ITModel);
+            return typeof(ITModel).IsAssignableFrom(typeof(T));
         }
+
         public IQueryable<T> Get(Expression<Func<T, bool>>? expression = null)
         {
             if (expression != null) query = query.Where(expression);

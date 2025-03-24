@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace APILAHJA.Repositorys.Builder
 {
+
     public interface IInvoiceBuilderRepository<TBuildRequestDto, TBuildResponseDto> : IBaseBuilderRepository<TBuildRequestDto, TBuildResponseDto>
      where TBuildRequestDto : class
      where TBuildResponseDto : class

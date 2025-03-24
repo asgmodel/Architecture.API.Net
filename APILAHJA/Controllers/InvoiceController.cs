@@ -1,4 +1,5 @@
 ﻿using APILAHJA.Dso;
+using APILAHJA.Repositorys.Share;
 using APILAHJA.Services;
 using APILAHJA.VM;
 using AutoMapper;
@@ -16,11 +17,11 @@ namespace APILAHJA.Controllers
 
         private readonly ILogger _logger;
 
-        public InvoiceController(InvoiceService invoiceService, IMapper mapper, ILogger logger)
+        public InvoiceController(InvoiceService invoiceService, IMapper mapper, ILoggerFactory logger)
         {
             _invoiceService = invoiceService;
             _mapper = mapper;
-            _logger = logger;
+            _logger = logger.CreateLogger(typeof(InvoiceController).FullName);
         }
 
         [HttpPost("create")]

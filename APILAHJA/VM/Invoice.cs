@@ -4,7 +4,8 @@ using System.ComponentModel.DataAnnotations;
 namespace APILAHJA.VM
 {
 
-    public class VMInvoiceCreate
+    public interface ITVM { }
+    public class VMInvoiceCreate: ITVM
     {
         
         public required string Id { get; set; }
@@ -14,7 +15,7 @@ namespace APILAHJA.VM
         public DateTime? InvoiceDate { get; set; }
     }
 
-    public class VMInvoiceOutput
+    public class VMInvoiceOutput: ITVM
     {
         public required string Id { get; set; }
         public required string CustomerId { get; set; }
