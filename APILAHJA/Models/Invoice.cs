@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using APILAHJA.Config;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace APILAHJA.Models
 {
     public interface ITModel { }
+
+
+    //  اذا  لم تستخدم الخاصية او كانت false   
+    //  تعمل  المبر بشكل  تلاقائي 
+
+    [IgnoreAutomateMapper(IgnoreMapping=false)] 
     public class Invoice : ITModel
     {
         [Key]

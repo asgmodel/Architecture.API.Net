@@ -11,12 +11,12 @@ namespace APILAHJA.Helper.Translation
     }
     public interface ITranslationData
     {
-        Dictionary<string, string> Value { get; set; }
+        Dictionary<string, string>? Value { get; set; }
     }
     public  class TranslationData: ITranslationData
     {
 
-        public Dictionary<string, string> Value { get; set; }
+        public Dictionary<string, string>? Value { get; set; }
 
 
 

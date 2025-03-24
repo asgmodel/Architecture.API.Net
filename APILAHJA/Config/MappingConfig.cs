@@ -15,6 +15,16 @@ namespace APILAHJA.Config
    
     public class MappingConfig : Profile
     {
+
+
+        public static bool CheckIgnoreAutomateMapper(Type type)
+        {
+            var attribute = type.GetCustomAttribute<IgnoreAutomateMapperAttribute>();
+
+            // Return true if the attribute exists and IgnoreMapping is true, otherwise false
+            return attribute != null && attribute.IgnoreMapping;
+        }
+
         public MappingConfig()
         {
 
@@ -26,19 +36,31 @@ namespace APILAHJA.Config
             var vms = assembly.GetTypes().Where(t => typeof(ITVM).IsAssignableFrom(t) && t.IsClass).ToList();
             var dsos = assembly.GetTypes().Where(t => typeof(ITDso).IsAssignableFrom(t) && t.IsClass).ToList();
 
+ 
             // map daynamic  Model and DTO
             foreach (var model in models)
             {
-                var dtoMatches = dtos.Where(d => d.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase)).ToList();
-                foreach (var dto in dtoMatches)
-                {
-                    Console.WriteLine($"Mapping {model.Name} <-> {dto.Name}");
-                    CreateMap(model, dto).ReverseMap().ForAllMembers(opt => opt.MapFrom((src, dest, destMember, context) =>
-                    {
-                        return HelperTranslation.MapToTranslationData( src, dest, destMember);
-                    }));
-                }
 
+                if (!CheckIgnoreAutomateMapper(model))
+                {
+
+
+                    var dtoMatches = dtos.Where(d => d.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+                    foreach (var dto in dtoMatches)
+                    {
+                        if (!CheckIgnoreAutomateMapper(dto))
+                        {
+                            CreateMap(model, dto).ReverseMap().ForAllMembers(opt => opt.MapFrom((src, dest, destMember, context) =>
+                            {
+                                return HelperTranslation.MapToTranslationData(src, dest, destMember);
+                            }));
+                        }
+
+
+                       
+                    }
+
+                }
                
             }
 
@@ -48,12 +70,16 @@ namespace APILAHJA.Config
 
             foreach (var dso in dsos)
             {
-               
-                var vmMatches = vms.Where(v => v.Name.Contains(dso.Name.Replace("RequestDso", "").Replace("ResponseDso", ""), StringComparison.OrdinalIgnoreCase)).ToList();
-                foreach (var vm in vmMatches)
+                if (!CheckIgnoreAutomateMapper(dso))
                 {
-                    Console.WriteLine($"Mapping {dso.Name} <-> {vm.Name}");
-                    CreateMap(dso, vm).ReverseMap();
+                    var vmMatches = vms.Where(v => v.Name.Contains(dso.Name.Replace("RequestDso", "").Replace("ResponseDso", ""), StringComparison.OrdinalIgnoreCase)).ToList();
+                    foreach (var vm in vmMatches)
+                    {
+                        if (!CheckIgnoreAutomateMapper(vm))
+                        {
+                            CreateMap(dso, vm).ReverseMap();
+                        }
+                    }
                 }
             }
         }
