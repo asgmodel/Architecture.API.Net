@@ -12,5 +12,7 @@ namespace APILAHJA.Models
         public required string Status { get; set; }
         public required string Url { get; set; }
         public DateTime? InvoiceDate { get; set; }
+
+        public string? Description { get; set; }
     }
 }

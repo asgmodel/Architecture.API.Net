@@ -3,6 +3,7 @@
 
 using APILAHJA.Dso;
 using APILAHJA.Dto;
+using APILAHJA.Helper.Translation;
 using APILAHJA.Models;
 using APILAHJA.VM;
 using AutoMapper;
@@ -25,30 +26,29 @@ namespace APILAHJA.Config
             var vms = assembly.GetTypes().Where(t => typeof(ITVM).IsAssignableFrom(t) && t.IsClass).ToList();
             var dsos = assembly.GetTypes().Where(t => typeof(ITDso).IsAssignableFrom(t) && t.IsClass).ToList();
 
+            // map daynamic  Model and DTO
             foreach (var model in models)
             {
-                // البحث عن أي DTO يحتوي على اسم النموذج
                 var dtoMatches = dtos.Where(d => d.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase)).ToList();
                 foreach (var dto in dtoMatches)
                 {
                     Console.WriteLine($"Mapping {model.Name} <-> {dto.Name}");
-                    CreateMap(model, dto).ReverseMap();
+                    CreateMap(model, dto).ReverseMap().ForAllMembers(opt => opt.MapFrom((src, dest, destMember, context) =>
+                    {
+                        return HelperTranslation.MapToTranslationData( src, dest, destMember);
+                    }));
                 }
 
-                // البحث عن أي VM يحتوي على اسم النموذج
-                var vmMatches = vms.Where(v => v.Name.Contains(model.Name, StringComparison.OrdinalIgnoreCase)).ToList();
-                foreach (var vm in vmMatches)
-                {
-                    Console.WriteLine($"Mapping {model.Name} <-> {vm.Name}");
-                    CreateMap(model, vm).ReverseMap();
-                }
+               
             }
 
+
+
+            //  map daynamic  VM and DSO
 
             foreach (var dso in dsos)
             {
                
-                // البحث عن أي VM يحتوي على اسم النموذج
                 var vmMatches = vms.Where(v => v.Name.Contains(dso.Name.Replace("RequestDso", "").Replace("ResponseDso", ""), StringComparison.OrdinalIgnoreCase)).ToList();
                 foreach (var vm in vmMatches)
                 {
